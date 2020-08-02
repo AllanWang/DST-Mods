@@ -68,6 +68,13 @@ local function formatDoubleDigit(number)
     return (number < 10 and "0" or "") .. number
 end
 
+--- Retrieve display value for damage
+-- For most cases, damage is a number value.
+-- However, in cases like the trident, it is a function
+local function formatDamage(damage)
+    return type(damage) == "function" and damage() or damage
+end
+
 local function formatTimeReal(time)
     local hour = math.floor(time / 3600)
     local min = math.floor(time / 60) - (hour * 60)
@@ -258,13 +265,15 @@ function ItemTile:GetDescriptionString()
         local components = item.components
         local tilecontainer = self.container
 
-        if components.weapon ~= nil and OPT_ENABLE_DAMAGE then
-            result:AppendLine("DMG: " .. components.weapon.damage)
+        if components.weapon ~= nil and components.weapon.damage ~= nil and
+            OPT_ENABLE_DAMAGE then
+            result:AppendLine("DMG: " .. formatDamage(components.weapon.damage))
         end
         if components.finiteuses ~= nil and OPT_ENABLE_USES then
             result:AppendLine("USE: " .. formatUses(components.finiteuses, true))
         end
-        if components.temperature ~= nil and isserver and OPT_ENABLE_TEMPERATURE then
+        if components.temperature ~= nil and components.temperature.current ~=
+            nil and isserver and OPT_ENABLE_TEMPERATURE then
             result:AppendLine("TEMP: " ..
                                   formatTemperature(
                                       components.temperature.current, 1))
@@ -285,8 +294,10 @@ function ItemTile:GetDescriptionString()
                     result:AppendLine("VS: " .. v)
                 end
             end
-            result:AppendLine("DR: " .. components.armor.absorb_percent * 100 ..
-                                  "%")
+            if components.armor.absorb_percent ~= nil then
+                result:AppendLine("DR: " .. components.armor.absorb_percent *
+                                      100 .. "%")
+            end
         end
 
         local insulator = components.insulator

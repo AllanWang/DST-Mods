@@ -1,8 +1,8 @@
-name = "Advanced Tooltips"
+name = "Advanced Tooltips [Updated]"
 description =
     "Display a lot more information on item tooltips: \nFood hunger/health/sanity values, spoiling time, weapon damage, item durability, armor durability & protection, and clothing insulation."
-author = "lishid"
-version = "1.0.6"
+author = "anuradeux"
+version = "2.0.0"
 
 forumthread = ""
 

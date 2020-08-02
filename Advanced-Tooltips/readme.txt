@@ -21,7 +21,4 @@ Configurations:
 
 Adapted from https://steamcommunity.com/sharedfiles/filedetails/?id=394172225
 
-Inspired from: Display Food Values, Detailed Tooltips.
-I loved using both of them, but neither works well in non-host environments.
-Food values was never compatible for clients joining other servers, while Detailed tooltips client support is unstable.
-So I thought, I really need to build this.
+Which is inspired from: Display Food Values, Detailed Tooltips.
