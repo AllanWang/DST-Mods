@@ -25,6 +25,9 @@ local require = GLOBAL.require
 local ItemTile = require "widgets/itemtile"
 local ContainerWidget = require "widgets/containerwidget"
 local prep_foods = require("preparedfoods")
+
+-- Override supers
+
 local ContainerWidget_Refresh_base = ContainerWidget.Refresh or
                                          function() return "" end
 local ItemTile_GetDescriptionString_base =
@@ -42,6 +45,8 @@ local BadPrefabs = {
     bernie_inactive = true,
     horn = true
 }
+
+-- StringBuilder
 
 local StringBuilder = Class(function(self, str) self.str = str end)
 
@@ -153,9 +158,15 @@ local function formatSpoilTime(perishable, modifier)
     return current
 end
 
-local function localItem(itemtile)
+-- Local functions
+-- Note that the functions may call each other, so they need to be defined before usage
+local localItem, localSetPercent
+
+--- Get local item
+-- Takes in ItemTile, and expects ItemTile.item to be valid
+localItem = function(itemtile)
     local item = itemtile.item
-    if not GLOBAL.TheNet:GetIsServer() then
+    if  GLOBAL.TheNet:GetIsServer() then return item end
         local prefab = item.prefab
         if prefab ~= nil and not BadPrefabs[prefab] then
             item = PrefabItems[prefab]
@@ -184,16 +195,16 @@ local function localItem(itemtile)
             local components = item.components
 
             if components.finiteuses ~= nil then
-                components.finiteuses:SetPercentInternal(value)
+                localSetPercent(components.finiteuses, value)
             end
             if components.fueled ~= nil then
-                components.fueled:SetPercentInternal(value)
+                localSetPercent(components.fueled, value)
             end
             if components.armor ~= nil then
-                components.armor:SetPercentInternal(value)
+                localSetPercent(components.armor, value)
             end
             if components.perishable ~= nil then
-                components.perishable:SetPercentInternal(value)
+                localSetPercent(components.perishable, value)
                 components.perishable:StopPerishing() -- TODO(allanwang) verify?
             end
         end
@@ -216,24 +227,25 @@ function ItemTile:SetPerishPercent(percent)
     ItemTile_SetPerishPercent_base(self, percent)
 end
 
-local function ItemTile:SetPercentInternal(percent)
-    self._tooltips_percent_value = percent
+localSetPercent = function(itemtile, percent)
+    if itemtile.item == nil then return end
+    itemtile._tooltips_percent_value = percent
 
     local isserver = GLOBAL.TheNet:GetIsServer()
-    local item = localItem(self)
+    local item = localItem(itemtile)
     local prefab = item.prefab
     local components = item.components
 
     if components.finiteuses ~= nil and OPT_REPLACE_USES_PERCENTAGE then
-        self.percent:SetString(formatUses(components.finiteuses, false))
+        itemtile.percent:SetString(formatUses(components.finiteuses, false))
     elseif components.armor ~= nil and components.armor.condition ~= nil and
         OPT_REPLACE_ARMOR_PERCENTAGE then
-        self.percent:SetString(formatArmor(components.armor, false))
+        itemtile.percent:SetString(formatArmor(components.armor, false))
     elseif components.fueled ~= nil and OPT_REPLACE_USES_PERCENTAGE then
         if item.prefab == "heatrock" then
-            self.percent:SetString(formatHeatrock(components.fueled))
+            itemtile.percent:SetString(formatHeatrock(components.fueled))
         else
-            self.percent:SetString(formatFuel(components.fueled, false))
+            itemtile.percent:SetString(formatFuel(components.fueled, false))
         end
     end
 end
@@ -241,7 +253,7 @@ end
 -- Grab the percent as they come in
 function ItemTile:SetPercent(percent)
     ItemTile_SetPercent_base(self, percent)
-    SetPercentInternal(self, percent)
+    localSetPercent(self, percent)
 end
 
 function ItemTile:GetTooltipPos()
