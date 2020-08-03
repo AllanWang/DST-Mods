@@ -6,7 +6,7 @@ The tutorial is geared towards macOS.
 
 ## Environment
 
-Mods are developed using Lua. There are some other languages that compile down to it, but they are either very different or don't have great tooling.
+Mods are developed using Lua. There are some other languages that compile down to it ([MoonScript](https://moonscript.org/), [Fennel](https://fennel-lang.org/)), but they are either very different or don't have great tooling.
 Given that the DST source code and other examples are all in Lua, I would recommend you stick with it if you are new to all language options. 
 You can see some quick samples via [learn x in y minutes](https://learnxinyminutes.com/docs/lua/).
 
@@ -18,7 +18,7 @@ Klei also has a `.tex` file format for textures. It is hard to find info about t
 
 ## Mod Format
 
-In short, a mod requires `modinfo.lua` for metadata and `modmain.lua` for actual code.
+A mod requires `modinfo.lua` for metadata and `modmain.lua` for actual code.
 You can take a look at any small mod for details.
 
 ## Source Code
