@@ -4,3 +4,4 @@
 
 * [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2185752556)
 * [Mod Info](mod/readme.txt)
+* [Changelog](Changelog.md)
