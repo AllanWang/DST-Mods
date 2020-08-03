@@ -46,9 +46,9 @@ local BadPrefabs = {
     horn = true
 }
 
--- StringBuilder
-
-local StringBuilder = Class(function(self, str) self.str = str end)
+--- StringBuilder
+-- Helper class to concatenate strings
+local StringBuilder = Class(function(self, str) self.str = str or "" end)
 
 function StringBuilder:Append(str) self.str = self.str .. str end
 
@@ -94,12 +94,12 @@ end
 
 local function formatFoodValues(hunger, sanity, health)
     if OPT_FOOD_COMPACT then return hunger .. "/" .. sanity .. "/" .. health end
-    local result = ""
-    if hunger ~= 0 then result = result .. "\n" .. "Hunger: " .. hunger end
-    if health ~= 0 then result = result .. "\n" .. "Health: " .. health end
-    if sanity ~= 0 then result = result .. "\n" .. "Sanity: " .. sanity end
-    if result:len() > 0 then result = result:sub(2) end
-    return result
+    local result = StringBuilder()
+    if hunger ~= 0 then result:AppendLine("Hunger: " .. hunger) end
+    if health ~= 0 then result:AppendLine("Health: " .. health) end
+    if sanity ~= 0 then result:AppendLine("Sanity: " .. sanity) end
+    -- Trim whitespace
+    return result:Get():gsub("^%s*(.-)%s*$", "%1")
 end
 
 local function formatTime(time)
@@ -166,48 +166,43 @@ local localItem, localSetPercent
 -- Takes in ItemTile, and expects ItemTile.item to be valid
 localItem = function(itemtile)
     local item = itemtile.item
-    if  GLOBAL.TheNet:GetIsServer() then return item end
-        local prefab = item.prefab
-        if prefab ~= nil and not BadPrefabs[prefab] then
-            item = PrefabItems[prefab]
-            if item == nil then
-                GLOBAL.TheWorld.ismastersim = true
-                GLOBAL.pcall(function()
-                    item = GLOBAL.SpawnPrefab(prefab)
-                end)
-                if item and item.replica and item.replica.inventoryitem then
-                    item.replica.inventoryitem.DeserializeUsage = function() end
-                end
-                if item then item:Remove() end
-                -- Filter out any moving creatures
-                if item and item.components and item.components.locomotor ~= nil then
-                    item = true
-                end
-                GLOBAL.TheWorld.ismastersim = false
-                if item == nil then item = true end
-                PrefabItems[prefab] = item
+    if GLOBAL.TheNet:GetIsServer() then return item end
+    local prefab = item.prefab
+    if prefab ~= nil and not BadPrefabs[prefab] then
+        item = PrefabItems[prefab]
+        if item == nil then
+            GLOBAL.TheWorld.ismastersim = true
+            GLOBAL.pcall(function() item = GLOBAL.SpawnPrefab(prefab) end)
+            if item and item.replica and item.replica.inventoryitem then
+                item.replica.inventoryitem.DeserializeUsage = function() end
             end
-            if not item or item == true then item = itemtile.item end
+            if item then item:Remove() end
+            -- Filter out any moving creatures
+            if item and item.components and item.components.locomotor ~= nil then
+                item = true
+            end
+            GLOBAL.TheWorld.ismastersim = false
+            if item == nil then item = true end
+            PrefabItems[prefab] = item
         end
+        if not item or item == true then item = itemtile.item end
+    end
 
-        if itemtile._tooltips_percent_value ~= nil then
-            local value = itemtile._tooltips_percent_value
-            local components = item.components
+    if itemtile._tooltips_percent_value == nil then return item end
 
-            if components.finiteuses ~= nil then
-                localSetPercent(components.finiteuses, value)
-            end
-            if components.fueled ~= nil then
-                localSetPercent(components.fueled, value)
-            end
-            if components.armor ~= nil then
-                localSetPercent(components.armor, value)
-            end
-            if components.perishable ~= nil then
-                localSetPercent(components.perishable, value)
-                components.perishable:StopPerishing() -- TODO(allanwang) verify?
-            end
-        end
+    local value = itemtile._tooltips_percent_value
+    local components = item.components
+
+    if components.finiteuses ~= nil then
+        localSetPercent(components.finiteuses, value)
+    end
+    if components.fueled ~= nil then
+        localSetPercent(components.fueled, value)
+    end
+    if components.armor ~= nil then localSetPercent(components.armor, value) end
+    if components.perishable ~= nil then
+        localSetPercent(components.perishable, value)
+        components.perishable:StopPerishing() -- TODO(allanwang) verify?
     end
     return item
 end
@@ -270,130 +265,129 @@ end
 
 function ItemTile:GetDescriptionString()
     local str = ItemTile_GetDescriptionString_base(self)
+
+    -- Our description is only for valid items in the inventory
+    if self.item == nil or not self.item:IsValid() or
+        self.item.replica.inventoryitem == nil then return str end
+
     local result = StringBuilder(str)
 
-    if self.item ~= nil and self.item:IsValid() and
-        self.item.replica.inventoryitem ~= nil then
-        local isserver = GLOBAL.TheNet:GetIsServer()
-        local player = GLOBAL.ThePlayer
-        local item = localItem(self)
-        local prefab = item.prefab
-        local components = item.components
-        local tilecontainer = self.container
+    local isserver = GLOBAL.TheNet:GetIsServer()
+    local player = GLOBAL.ThePlayer
+    local item = localItem(self)
+    local prefab = item.prefab
+    local components = item.components
+    local tilecontainer = self.container
 
-        if components.weapon ~= nil and components.weapon.damage ~= nil and
-            OPT_ENABLE_DAMAGE then
-            result:AppendLine("DMG: " .. formatDamage(components.weapon.damage))
+    if components.weapon ~= nil and components.weapon.damage ~= nil and
+        OPT_ENABLE_DAMAGE then
+        result:AppendLine("DMG: " .. formatDamage(components.weapon.damage))
+    end
+    if components.finiteuses ~= nil and OPT_ENABLE_USES then
+        result:AppendLine("USE: " .. formatUses(components.finiteuses, true))
+    end
+    if components.temperature ~= nil and components.temperature.current ~= nil and
+        isserver and OPT_ENABLE_TEMPERATURE then
+        result:AppendLine("TEMP: " ..
+                              formatTemperature(components.temperature.current,
+                                                1))
+    end
+    if components.fueled ~= nil and OPT_ENABLE_USES then
+        if item.prefab == "heatrock" then
+            result:AppendLine("USE: " .. formatHeatrock(components.fueled))
+        else
+            result:AppendLine("USE: " .. formatFuel(components.fueled, true))
         end
-        if components.finiteuses ~= nil and OPT_ENABLE_USES then
-            result:AppendLine("USE: " .. formatUses(components.finiteuses, true))
+    end
+    if components.armor ~= nil and OPT_ENABLE_ARMOR then
+        if components.armor.condition ~= nil then
+            result:AppendLine("HP: " .. formatArmor(components.armor, true))
         end
-        if components.temperature ~= nil and components.temperature.current ~=
-            nil and isserver and OPT_ENABLE_TEMPERATURE then
-            result:AppendLine("TEMP: " ..
-                                  formatTemperature(
-                                      components.temperature.current, 1))
-        end
-        if components.fueled ~= nil and OPT_ENABLE_USES then
-            if item.prefab == "heatrock" then
-                result:AppendLine("USE: " .. formatHeatrock(components.fueled))
-            else
-                result:AppendLine("USE: " .. formatFuel(components.fueled, true))
+        if components.armor.tags ~= nil then
+            for k, v in pairs(components.armor.tags) do
+                result:AppendLine("VS: " .. v)
             end
         end
-        if components.armor ~= nil and OPT_ENABLE_ARMOR then
-            if components.armor.condition ~= nil then
-                result:AppendLine("HP: " .. formatArmor(components.armor, true))
-            end
-            if components.armor.tags ~= nil then
-                for k, v in pairs(components.armor.tags) do
-                    result:AppendLine("VS: " .. v)
-                end
-            end
-            if components.armor.absorb_percent ~= nil then
-                result:AppendLine("DR: " .. components.armor.absorb_percent *
-                                      100 .. "%")
-            end
+        if components.armor.absorb_percent ~= nil then
+            result:AppendLine("DR: " .. components.armor.absorb_percent * 100 ..
+                                  "%")
         end
+    end
 
-        local insulator = components.insulator
-        if insulator ~= nil and OPT_ENABLE_INSULATION then
-            if insulator.type == GLOBAL.SEASONS.WINTER then
-                result:AppendLine("Heating: " ..
-                                      formatDecimal(insulator.insulation))
-            else
-                result:AppendLine("Cooling: " ..
-                                      formatDecimal(insulator.insulation))
-            end
+    local insulator = components.insulator
+    if insulator ~= nil and OPT_ENABLE_INSULATION then
+        if insulator.type == GLOBAL.SEASONS.WINTER then
+            result:AppendLine("Heating: " .. formatDecimal(insulator.insulation))
+        else
+            result:AppendLine("Cooling: " .. formatDecimal(insulator.insulation))
         end
+    end
 
-        local waterproofer = components.waterproofer
-        if waterproofer ~= nil and OPT_ENABLE_INSULATION then
-            result:AppendLine("Waterproof: " ..
-                                  formatDecimal(waterproofer.effectiveness * 100))
-        end
+    local waterproofer = components.waterproofer
+    if waterproofer ~= nil and OPT_ENABLE_INSULATION then
+        result:AppendLine("Waterproof: " ..
+                              formatDecimal(waterproofer.effectiveness * 100))
+    end
 
-        local isfood = nil
-        local actions =
-            player.components.playeractionpicker:GetInventoryActions(self.item)
-        if #actions > 0 then
-            for k, v in pairs(actions) do
-                if v.action == GLOBAL.ACTIONS.EAT or v.action ==
-                    GLOBAL.ACTIONS.HEAL then
-                    isfood = true
-                    break
-                end
+    local isfood = nil
+    local actions = player.components.playeractionpicker:GetInventoryActions(
+                        self.item)
+    if #actions > 0 then
+        for k, v in pairs(actions) do
+            if v.action == GLOBAL.ACTIONS.EAT or v.action == GLOBAL.ACTIONS.HEAL then
+                isfood = true
+                break
             end
         end
+    end
 
-        if components.edible and isfood and OPT_ENABLE_FOOD_VALUES then
-            local hunger = formatDecimal(components.edible:GetHunger(player), 1)
-            local health = formatDecimal(components.edible:GetHealth(player), 1)
-            local sanity = formatDecimal(components.edible:GetSanity(player), 1)
+    if components.edible and isfood and OPT_ENABLE_FOOD_VALUES then
+        local hunger = formatDecimal(components.edible:GetHunger(player), 1)
+        local health = formatDecimal(components.edible:GetHealth(player), 1)
+        local sanity = formatDecimal(components.edible:GetSanity(player), 1)
 
-            if player.components.eater and player.components.eater.monsterimmune and
-                not player.components.eater:DoFoodEffects(self.item) then
-                if hunger < 0 then hunger = 0 end
-                if health < 0 then health = 0 end
-                if sanity < 0 then sanity = 0 end
-            end
-
-            result:AppendLine(formatFoodValues(hunger, sanity, health))
+        if player.components.eater and player.components.eater.monsterimmune and
+            not player.components.eater:DoFoodEffects(self.item) then
+            if hunger < 0 then hunger = 0 end
+            if health < 0 then health = 0 end
+            if sanity < 0 then sanity = 0 end
         end
-        if components.healer and isfood and OPT_ENABLE_FOOD_VALUES then
-            result:AppendLine(formatFoodValues(0, 0, components.healer.health))
-        end
-        if components.perishable and OPT_ENABLE_SPOIL_TIME then
-            local modifier = 1
-            local owner = components.inventoryitem and
-                              components.inventoryitem.owner or nil
-            if owner then
-                if owner:HasTag("fridge") then
-                    modifier = TUNING.PERISH_FRIDGE_MULT
-                elseif owner:HasTag("spoiler") then
-                    modifier = TUNING.PERISH_GROUND_MULT
-                end
-            elseif isserver then
+
+        result:AppendLine(formatFoodValues(hunger, sanity, health))
+    end
+    if components.healer and isfood and OPT_ENABLE_FOOD_VALUES then
+        result:AppendLine(formatFoodValues(0, 0, components.healer.health))
+    end
+    if components.perishable and OPT_ENABLE_SPOIL_TIME then
+        local modifier = 1
+        local owner = components.inventoryitem and
+                          components.inventoryitem.owner or nil
+        if owner then
+            if owner:HasTag("fridge") then
+                modifier = TUNING.PERISH_FRIDGE_MULT
+            elseif owner:HasTag("spoiler") then
                 modifier = TUNING.PERISH_GROUND_MULT
-            elseif tilecontainer ~= nil then
-                if tilecontainer:HasTag("fridge") then
-                    modifier = TUNING.PERISH_FRIDGE_MULT
-                elseif tilecontainer:HasTag("spoiler") then
-                    modifier = TUNING.PERISH_GROUND_MULT
-                end
             end
-
-            if GLOBAL.TheWorld.state.temperature < 0 then
-                modifier = modifier * TUNING.PERISH_WINTER_MULT
+        elseif isserver then
+            modifier = TUNING.PERISH_GROUND_MULT
+        elseif tilecontainer ~= nil then
+            if tilecontainer:HasTag("fridge") then
+                modifier = TUNING.PERISH_FRIDGE_MULT
+            elseif tilecontainer:HasTag("spoiler") then
+                modifier = TUNING.PERISH_GROUND_MULT
             end
+        end
 
-            modifier = modifier * TUNING.PERISH_GLOBAL_MULT
+        if GLOBAL.TheWorld.state.temperature < 0 then
+            modifier = modifier * TUNING.PERISH_WINTER_MULT
+        end
 
-            if modifier ~= 0 then
-                result:AppendLine("Spoil: " ..
-                                      formatSpoilTime(components.perishable,
-                                                      modifier))
-            end
+        modifier = modifier * TUNING.PERISH_GLOBAL_MULT
+
+        if modifier ~= 0 then
+            result:AppendLine("Spoil: " ..
+                                  formatSpoilTime(components.perishable,
+                                                  modifier))
         end
     end
 
