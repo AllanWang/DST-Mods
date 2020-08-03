@@ -179,22 +179,22 @@ local function localItem(itemtile)
             if not item or item == true then item = itemtile.item end
         end
 
-        if itemtile.percent_value ~= nil then
-            local value = itemtile.percent_value
+        if itemtile._tooltips_percent_value ~= nil then
+            local value = itemtile._tooltips_percent_value
             local components = item.components
 
             if components.finiteuses ~= nil then
-                components.finiteuses:SetPercent(value)
+                components.finiteuses:SetPercentInternal(value)
             end
             if components.fueled ~= nil then
-                components.fueled:SetPercent(value)
+                components.fueled:SetPercentInternal(value)
             end
             if components.armor ~= nil then
-                components.armor:SetPercent(value)
+                components.armor:SetPercentInternal(value)
             end
             if components.perishable ~= nil then
-                components.perishable:SetPercent(value)
-                components.perishable:StopPerishing()
+                components.perishable:SetPercentInternal(value)
+                components.perishable:StopPerishing() -- TODO(allanwang) verify?
             end
         end
     end
@@ -212,14 +212,12 @@ end
 
 -- Grab the percent as they come in
 function ItemTile:SetPerishPercent(percent)
-    self.percent_value = percent
+    self._tooltips_percent_value = percent
     ItemTile_SetPerishPercent_base(self, percent)
 end
 
--- Grab the percent as they come in
-function ItemTile:SetPercent(percent)
-    self.percent_value = percent
-    ItemTile_SetPercent_base(self, percent)
+local function ItemTile:SetPercentInternal(percent)
+    self._tooltips_percent_value = percent
 
     local isserver = GLOBAL.TheNet:GetIsServer()
     local item = localItem(self)
@@ -238,6 +236,12 @@ function ItemTile:SetPercent(percent)
             self.percent:SetString(formatFuel(components.fueled, false))
         end
     end
+end
+
+-- Grab the percent as they come in
+function ItemTile:SetPercent(percent)
+    ItemTile_SetPercent_base(self, percent)
+    SetPercentInternal(self, percent)
 end
 
 function ItemTile:GetTooltipPos()
