@@ -63,7 +63,7 @@ Only `modmain.lua` changes for me so I create a hard link (eg `ln [projectDir]/[
 Now, you can edit the mod file in git and have it automatically applied whenever the server starts.
 
 Testing the mod requires a server restart, which can either be done with `c_reset()` in the DST console (`ctrl` + `` ` ``),
-or by disconnecting and reconnecting. There is no need to fully restart the game.
+or by disconnecting and reconnecting. There is no need to fully restart the game. The console will also be extremely useful to modifying world/user states, so have a look at [the possible commands](https://dontstarve.fandom.com/wiki/Console/Don%27t_Starve_Together_Commands) if you haven't already.
 
 ---
 
