@@ -1,7 +1,7 @@
 # DST Development
 
 This page offers a quick summary of what to do to get started.
-A lot of other guides are either outdated or focus on the development process alone, so hopefully this will fill in the gap.
+A lot of other guides are either outdated or focus on the coding process alone, so hopefully this will fill in the gap.
 The tutorial is geared towards macOS.
 
 ## Environment
@@ -10,7 +10,7 @@ Mods are developed using Lua. There are some other languages that compile down t
 Given that the DST source code and other examples are all in Lua, I would recommend you stick with it if you are new to all language options. 
 You can see some quick samples via [learn x in y minutes](https://learnxinyminutes.com/docs/lua/).
 
-Klei also has a `.tex` file format for textures. It is hard to find info about this without seeing LaTeX, but here are some sample tools:
+Klei also has a `.tex` file format for textures. It is hard to find info about this without seeing LaTeX, but here are some tools:
 
 * [ztools](https://gitlab.com/Zarklord/ztools) (Cross platform)
 * [ktool](https://github.com/nsimplex/ktools) (Cross platform)
@@ -53,13 +53,13 @@ In short, DST is very open, and you can look at the source code to find which gl
 I've only used Lua for a short time, but some tips that may help:
 
 * Call function "supers" when overriding. If modifying `function T:a`, create `local a_base = T.a`. When creating a new `function T:a`, call `a_base` somewhere so that the behaviour remains consistent for the application and other mods.
-* Nil check before calling fields. If calling `a.b.c`, check that `a ~= nil and b ~= nil` first. If `b` exists, calling `b.c` when `c` does not exist will return nil, so you don't have to worry about types or a defined function in that case.
+* Nil check before calling fields. If calling `a.b.c`, check that `a ~= nil and a.b ~= nil` first. If `b` exists, calling `b.c` when `c` does not exist will return nil, so you don't have to worry about types or an undefined function in that case.
 * Avoid generic global field names. Introducing new fields may clash with the source code or any of the other mods available. Consider adding a prefix, and moving your fields into a separate prefixed key if you have a lot of them.
 
 ## Mod Testing
 
 I test mods by creating a dev copy under the `dontstarve_steam.app/Contents/mods` folder. 
-Only `modmain.lua` changes for me so I create a hard link (eg `ln [projectDir]/[modName]/mod/modmain.lua [absoluteDirToDstContents]/mods/[modName]-dev/modmain.lua)`; for `modinfo.lua`, I will add a suffix to the mod name.
+Only `modmain.lua` changes for me so I create a hard link (eg `ln [projectDir]/[modName]/mod/modmain.lua [absoluteDirToDstContents]/mods/[modName]-dev/modmain.lua)`; for `modinfo.lua`, I will add a suffix to the mod name so it doesn't look the same as the release version.
 Now, you can edit the mod file in git and have it automatically applied whenever the server starts.
 
 Testing the mod requires a server restart, which can either be done with `c_reset()` in the DST console (`ctrl` + `` ` ``),
@@ -67,7 +67,7 @@ or by disconnecting and reconnecting. There is no need to fully restart the game
 
 ---
 
-To facilitate testing, you can install [No Mods Disabling](https://steamcommunity.com/sharedfiles/filedetails/?id=2161677657) to avoid having all your mods deselected whenever there's a bug.
+To facilitate testing, you can install [No Mods Disabling](https://steamcommunity.com/sharedfiles/filedetails/?id=2161677657) to avoid having all your mods deselected whenever there's a crash.
 You can also look at force enabling your mod via `dontstarve_steam.app/Contents/mods/modsettings.lua`.
 
 ---
@@ -80,6 +80,6 @@ For logs, you can look at your client logs, which are usually located under `Doc
 Install the DST Mod Tools:
 
 * Click Steam > Library
-* In you haven't already, click the `Games` dropdown on the top left and select `Tools`
+* If you haven't already, click the `Games` dropdown on the top left and select `Tools`
 * Search and install `Don't Starve Mod Tools`
 * Launch and follow on screen instructions
