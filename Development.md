@@ -62,7 +62,7 @@ I test mods by creating a dev copy under the `dontstarve_steam.app/Contents/mods
 Only `modmain.lua` changes for me so I create a hard link (eg `ln [projectDir]/[modName]/mod/modmain.lua [absoluteDirToDstContents]/mods/[modName]-dev/modmain.lua)`; for `modinfo.lua`, I will add a suffix to the mod name.
 Now, you can edit the mod file in git and have it automatically applied whenever the server starts.
 
-Testing the mod requires a server restart, which can either be done with `c_reset()` in the DST console (`ctrl` + `\``),
+Testing the mod requires a server restart, which can either be done with `c_reset()` in the DST console (`ctrl` + `` ` ``),
 or by disconnecting and reconnecting. There is no need to fully restart the game.
 
 ---
