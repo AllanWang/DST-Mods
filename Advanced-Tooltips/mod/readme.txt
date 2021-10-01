@@ -30,3 +30,5 @@ Source: https://github.com/AllanWang/DST-Mods/tree/master/Advanced-Tooltips
 Adapted from https://steamcommunity.com/sharedfiles/filedetails/?id=394172225
 
 Which is inspired from: Display Food Values, Detailed Tooltips.
+
+Permission is granted to update/modify contents as you wish (MIT License).
