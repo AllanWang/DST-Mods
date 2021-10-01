@@ -1,0 +1,89 @@
+
+This version of Action Queue has been completely rewritten with a focus on fixing all the underlying issues with the previous versions, optimizing and minimizing any performance impact, along with adding several new features. [url=https://steamcommunity.com/sharedfiles/filedetails/?id=609051112]Action Queue DST[/url] ported by [url=https://steamcommunity.com/profiles/76561198161551641]xiaoXzzz[/url] has been a great addition to my collection of mods, and it was only after using it for more than a year, that I decided I wanted to undertake fixing the few issues it had.
+
+The original [url=https://steamcommunity.com/sharedfiles/filedetails/?id=263658444]Action Queue[/url] for Don't Starve by [url=https://steamcommunity.com/id/nsimplex]simplex[/url], which was created in 2014, is an amazing mod that still sees much use in its various versions.
+
+[h1]Usage[/h1]
+[list]
+[*]Shift + click on entities as you normally would to add them to the action queue
+[*]Shift + double-click on an entity to select all entities of the same prefab in a configurable range
+[*]Shift + drag-click a rectangle to select entities within a selection box
+[*]Shift + drag-rightclick with a deployable item in your cursor to place it within the bounded area
+[*]Shift + drag-rightclick with a tool equipped to focus the actions performed by that tool
+[*]Shift + rightclick with a mini-sign in your cursor to place it directly on a chest
+[*]Shift + click on a crafting recipe to continuously craft that item
+[*]Press C to craft the last completed recipe (includes structures)
+[*]Shift + C to continuously craft the last crafted item (doesn't include structures)
+[*]Press any movement, primary, secondary, attack, or action key to cancel (or pause) the queue
+[*]Press F3 to display a turf grid that may help you with aligning your placements
+[*]Press F4 to toggle auto-collect which is triggered by certain actions
+[*]Press F5 to toggle endless deploy mode, ignores selection height to deploy all available items
+[/list]
+[h1]Config Options[/h1]
+[list]
+[*]ActionQueue key with an extensive keylist
+[*]Always clear queue
+(if false, use action key(spacebar) to clear selected targets)
+[*]Selection color with 10 colors to choose from
+[*]Selection opacity
+[*]Double click speed
+[*]Double click range
+[*]Turf grid toggle key
+[*]Turf grid radius
+[*]Turf grid color
+[*]Option to always deploy on the wall / turf grid
+[*]Auto-collect toggle key
+[*]Enable auto-collect by default
+[*]Endless deploy toggle key
+[*]Enable endless deploy by default
+[*]Craft last recipe key
+[*]Tooth-trap spacing
+[/list]
+[h1]New Features[/h1]
+[list]
+[*]Ability to add entities to the selection queue during a deployment action
+[*]Auto-collect can be toggled in game as needed
+[*]Configurable deploy spacing for tooth traps
+[*]Caches your last completed recipe to be re-called with a single key press (default C)
+[*]Craft last recipe repeatedly with ActionQueue key + last recipe key (shift + C)
+[*]Draw added to the action list
+[*]Deploy now goes up and down rows instead of always returning to the horizontal start position
+[*]Deployment of items by dropping them on the wall grid
+[*]Eat added to the action list
+[*]Feedplayer added to the action list
+[*]Grabs the next stack of items of the same type from your inventory for active item actions
+[*]Heal player added to the action list
+[*]Minisigns are now easily placeable on chests
+[*]Pick action will never target evil flowers
+[*]Pickup action will never target any active trap
+[*]Pitchfork actions, digging and placing turf
+[*]Repeat crafting is faster (timer based)
+[*]Tool filtering, which was a feature of the original mod
+[*]Unwrap added to the action list
+[*]Waits for a broken tool to re-equip without canceling the queue
+[/list]
+[h1]Fixes[/h1]
+[list]
+[*]ActionQueue should never be canceled by using chat, map, or alt-tabbing anymore
+[*]ActionQueue now cancels properly if you are moving when you release a mouse button during a selection
+[*]Fixed incompatibility with Woodie beaver mode
+[*]Deployment is only triggered if the selection queue is empty
+[*]Give action now works properly with mushroom planters
+[*]Selection will not begin if your first click is on a HUD entity
+[*]Significantly improved how actions are applied to their targets
+[*]Switched to using control handlers for leftclick and rightclick, which means the mod follows rebinds in the games settings menu for primary and secondary keys
+[/list]
+
+[h1]Don't Starve version[/h1]
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=1930794331]ActionQueue Reborn[/url] by [url=https://steamcommunity.com/id/myxal]myxal[/url]
+
+[h1]Translations[/h1]
+
+此版本的 Action Queue 是完全重寫，著重在修復前版本所有的潛在問題，優化並最小化對於性能的影響，並添加幾個新功能。
+[url=https://steamcommunity.com/profiles/76561198161551641]xiaoXzzz[/url] 移轉 DST 版的 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=609051112]Action Queue[/url] 作為我的模組收藏，而在使用超過一年後，我決定要解決他的一些問題。
+
+2014 年，DST 上原始版本的 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=263658444]Action Queue[/url] 是 [url=https://steamcommunity.com/id/nsimplex]simplex[/url] 所寫，經過非常多的改版仍歷久不衰，是一個令人驚艷的模組。
+
+[url=https://pastebin.com/eCuge3rB]完整敘述翻譯 (繁體中文)[/url] [url=https://steamcommunity.com/id/cheewind]cheewind[/url]
+
+Big thanks to co.op for his help testing and suggesting new features
