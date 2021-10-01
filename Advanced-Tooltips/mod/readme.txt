@@ -25,7 +25,7 @@ Main changes here are that several modifiers were removed, and several checks we
 
 -------------------------------------------------------------------------
 
-Source: https://github.com/AllanWang/DST-Mods/tree/master/Advanced-Tooltips
+Source: https://github.com/AllanWang/DST-Mods/tree/dev/Advanced-Tooltips
 
 Adapted from https://steamcommunity.com/sharedfiles/filedetails/?id=394172225
 
