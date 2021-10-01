@@ -19,6 +19,12 @@ Configurations:
 
 -------------------------------------------------------------------------
 
+Tau is a codename for my mod updates.
+
+Main changes here are that several modifiers were removed, and several checks were added to make the code more robust. Only text items are updated, so this mod should theoretically be compatible with everything else.
+
+-------------------------------------------------------------------------
+
 Source: https://github.com/AllanWang/DST-Mods/tree/master/Advanced-Tooltips
 
 Adapted from https://steamcommunity.com/sharedfiles/filedetails/?id=394172225
