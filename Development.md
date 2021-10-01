@@ -67,8 +67,7 @@ or by disconnecting and reconnecting. There is no need to fully restart the game
 
 ---
 
-To facilitate testing, you can install [No Mods Disabling](https://steamcommunity.com/sharedfiles/filedetails/?id=2161677657) to avoid having all your mods deselected whenever there's a crash.
-You can also look at force enabling your mod via `dontstarve_steam.app/Contents/mods/modsettings.lua`.
+To facilitate testing, you can look at configs in `dontstarve_steam.app/Contents/mods/modsettings.lua`. Namely for logging, auto enabling mods, not disabling mods on crash, etc.
 
 ---
 
@@ -83,3 +82,10 @@ Install the DST Mod Tools:
 * If you haven't already, click the `Games` dropdown on the top left and select `Tools`
 * Search and install `Don't Starve Mod Tools`
 * Launch and follow on screen instructions
+
+## Useful DST Console Commands
+* `c_skip(float)` - skip float days
+* `c_freecrafting()` - free crafts
+* `c_give(key, count)` - give items to player
+* `c_supergodmode()` - ignore all negative modifiers
+* `c_reset()` - server reset
