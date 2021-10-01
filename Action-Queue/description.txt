@@ -1,3 +1,24 @@
+[Client Mod]
+
+TODO description
+
+-------------------------------------------------------------------------
+
+Tau is a codename for my mod updates.
+
+TODO for changes 
+
+-------------------------------------------------------------------------
+
+Source: https://github.com/AllanWang/DST-Mods/tree/dev/Action-Queue
+
+Adapted from https://steamcommunity.com/sharedfiles/filedetails/?id=1608191708
+
+Permission is granted to update/modify contents as you wish (MIT License).
+
+-------------------------------------------------------------------------
+
+Original description:
 
 This version of Action Queue has been completely rewritten with a focus on fixing all the underlying issues with the previous versions, optimizing and minimizing any performance impact, along with adding several new features. [url=https://steamcommunity.com/sharedfiles/filedetails/?id=609051112]Action Queue DST[/url] ported by [url=https://steamcommunity.com/profiles/76561198161551641]xiaoXzzz[/url] has been a great addition to my collection of mods, and it was only after using it for more than a year, that I decided I wanted to undertake fixing the few issues it had.
 
