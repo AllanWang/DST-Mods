@@ -287,11 +287,6 @@ function ItemTile:GetDescriptionString()
         if prefab == "hambat" and components.perishable ~= nil and components.perishable._tooltips_percent_value ~= nil then 
           damage = TUNING.HAMBAT_DAMAGE * components.perishable._tooltips_percent_value
           damage = GLOBAL.Remap(damage, 0, TUNING.HAMBAT_DAMAGE, TUNING.HAMBAT_MIN_DAMAGE_MODIFIER * TUNING.HAMBAT_DAMAGE, TUNING.HAMBAT_DAMAGE)
-          local _, hamDebug = GLOBAL.pcall(function() 
-            return table.concat({components.weapon.damage, components.perishable._tooltips_percent_value}, ", ")
-          end)
-
-          result:AppendLine("Debug Ham bat: " .. hamDebug)
         end 
         result:AppendLine("DMG: " .. formatDecimal(damage, 1))
     end
