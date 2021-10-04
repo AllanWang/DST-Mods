@@ -223,8 +223,8 @@ function ItemTile:SetPerishPercent(percent)
 end
 
 localSetPercent = function(itemtile, percent)
-    if itemtile.item == nil then return end
     itemtile._tooltips_percent_value = percent
+    if itemtile.item == nil then return end
 
     local isserver = GLOBAL.TheNet:GetIsServer()
     local item = localItem(itemtile)
@@ -281,7 +281,19 @@ function ItemTile:GetDescriptionString()
 
     if components.weapon ~= nil and components.weapon.damage ~= nil and
         OPT_ENABLE_DAMAGE then
-        result:AppendLine("DMG: " .. formatDamage(components.weapon.damage))
+        local damage = formatDamage(components.weapon.damage)
+        -- Hambats have special logic for damage; note that we cannot generalize the implementation
+        -- as tuning constants are hardcoded per item.
+        if prefab == "hambat" and components.perishable ~= nil and components.perishable._tooltips_percent_value ~= nil then 
+          damage = TUNING.HAMBAT_DAMAGE * components.perishable._tooltips_percent_value
+          damage = GLOBAL.Remap(damage, 0, TUNING.HAMBAT_DAMAGE, TUNING.HAMBAT_MIN_DAMAGE_MODIFIER * TUNING.HAMBAT_DAMAGE, TUNING.HAMBAT_DAMAGE)
+          local _, hamDebug = GLOBAL.pcall(function() 
+            return table.concat({components.weapon.damage, components.perishable._tooltips_percent_value}, ", ")
+          end)
+
+          result:AppendLine("Debug Ham bat: " .. hamDebug)
+        end 
+        result:AppendLine("DMG: " .. formatDecimal(damage, 1))
     end
     if components.finiteuses ~= nil and OPT_ENABLE_USES then
         result:AppendLine("USE: " .. formatUses(components.finiteuses, true))
