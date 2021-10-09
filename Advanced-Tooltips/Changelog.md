@@ -1,3 +1,8 @@
+# 2.1.0
+
+* Added percent patch to all functions; fixes perishable items, weapon use, armor damage, etc
+* Fixed hambat to display damage relative to staleness
+
 # 2.0.2
 
 * Fixed loading issues (2.0.1 didn't work)
