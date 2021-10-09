@@ -114,7 +114,12 @@ local function formatUses(finiteuses, showtotal)
         use = v
         break
     end
-    local current = formatDecimal(finiteuses.current / use)
+    local currentuses = finiteuses.current
+    -- Patch for percent
+    if currentuses == finiteuses.total then 
+        currentuses = localGetComponentPercent(finiteuses) * finiteuses.total 
+    end 
+    local current = formatDecimal(currentuses / use)
     if showtotal and OPT_SHOW_MAX then
         return current .. "/" .. formatDecimal(finiteuses.total / use)
     end
@@ -122,7 +127,12 @@ local function formatUses(finiteuses, showtotal)
 end
 
 local function formatFuel(fueled, showtotal)
-    local current = formatTime(fueled.currentfuel / fueled.rate)
+    local currentfuel = fueled.currentfuel 
+    -- Patch for percent
+    if currentfuel == fueled.maxfuel then 
+      currentfuel = localGetComponentPercent(fueled) * fueled.maxfuel
+    end
+    local current = formatTime(currentfuel / fueled.rate)
     if showtotal and OPT_SHOW_MAX then
         return current .. "/" .. formatTime(fueled.maxfuel / fueled.rate)
     end
@@ -130,13 +140,18 @@ local function formatFuel(fueled, showtotal)
 end
 
 local function formatHeatrock(fueled)
-    local current = fueled:GetPercent() * TUNING.HEATROCK_NUMUSES
-    if OPT_SHOW_MAX then return current .. "/" .. TUNING.HEATROCK_NUMUSES end
+    local current = localGetComponentPercent(fueled) * TUNING.HEATROCK_NUMUSES
+    if OPT_SHOW_MAX then return formatDecimal(current, 0) .. "/" .. TUNING.HEATROCK_NUMUSES end
     return current
 end
 
 local function formatArmor(armor, showtotal)
-    local current = formatDecimal(armor.condition)
+    local condition = armor.condition
+    -- Patch for percent
+    if condition == armor.maxcondition then 
+      condition = localGetComponentPercent(armor) * armor.maxcondition
+    end
+    local current = formatDecimal(condition)
     if showtotal and OPT_SHOW_MAX then
         return current .. "/" .. formatDecimal(armor.maxcondition)
     end
@@ -151,9 +166,15 @@ local function formatTemperature(temperature, decimals)
 end
 
 local function formatSpoilTime(perishable, modifier)
-    local current = formatTime(perishable.perishremainingtime / modifier)
+    local totalperishtime = perishable.perishtime / modifier
+    local remainingperishtime = perishable.perishremainingtime / modifier 
+    -- Backwards compatible check; if remaining time is still max and we have a percentage, use percentage
+    if remainingperishtime == totalperishtime and perishable._tooltips_percent_value ~= nil then 
+        remainingperishtime = totalperishtime * perishable._tooltips_percent_value
+    end 
+    local current = formatTime(remainingperishtime)
     if OPT_SHOW_MAX then
-        return current .. "/" .. formatTime(perishable.perishtime / modifier)
+        return current .. "/" .. formatTime(totalperishtime)
     end
     return current
 end
@@ -193,17 +214,12 @@ localItem = function(itemtile)
     local value = itemtile._tooltips_percent_value
     local components = item.components
 
-    if components.finiteuses ~= nil then
-        localSetPercent(components.finiteuses, value)
-    end
-    if components.fueled ~= nil then
-        localSetPercent(components.fueled, value)
-    end
-    if components.armor ~= nil then localSetPercent(components.armor, value) end
-    if components.perishable ~= nil then
-        localSetPercent(components.perishable, value)
-        components.perishable:StopPerishing() -- TODO(allanwang) verify?
-    end
+    -- Populate components that could have resulted in SetPercent call; see scripts/widgets/itemtile.lua
+    -- Note that perishables have SetPerishPercent instead
+    localSetComponentPercent(components.armor, value)
+    localSetComponentPercent(components.fueled, value)
+    localSetComponentPercent(components.finiteuses, value)
+  
     return item
 end
 
@@ -218,11 +234,12 @@ end
 
 -- Grab the percent as they come in
 function ItemTile:SetPerishPercent(percent)
-    self._tooltips_percent_value = percent
+    localSetComponentPercent(self.item.components.perishable, percent)
     ItemTile_SetPerishPercent_base(self, percent)
 end
 
 localSetPercent = function(itemtile, percent)
+    if itemtile == nil then return end
     itemtile._tooltips_percent_value = percent
     if itemtile.item == nil then return end
 
@@ -243,6 +260,17 @@ localSetPercent = function(itemtile, percent)
             itemtile.percent:SetString(formatFuel(components.fueled, false))
         end
     end
+end
+
+localSetComponentPercent = function(component, percent) 
+  if component == nil then return end
+  component._tooltips_percent_value = percent
+end
+
+localGetComponentPercent = function(component) 
+  if component == nil then return 1.0 end 
+  if component._tooltips_percent_value ~= nil then return component._tooltips_percent_value end 
+  return component:GetPercent() 
 end
 
 -- Grab the percent as they come in
