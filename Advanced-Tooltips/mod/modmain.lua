@@ -108,7 +108,7 @@ local function formatTime(time)
     return formatDecimal(days, 1) .. "d"
 end
 
-local function formatUses(finiteuses, showtotal)
+local function describeUses(finiteuses, showtotal)
     local use = 1
     for k, v in pairs(finiteuses.consumption) do
         use = v
@@ -126,7 +126,7 @@ local function formatUses(finiteuses, showtotal)
     return current
 end
 
-local function formatFuel(fueled, showtotal)
+local function describeFuel(fueled, showtotal)
     local currentfuel = fueled.currentfuel 
     -- Patch for percent
     if currentfuel == fueled.maxfuel then 
@@ -139,13 +139,13 @@ local function formatFuel(fueled, showtotal)
     return current
 end
 
-local function formatHeatrock(fueled)
+local function describeHeatrock(fueled)
     local current = localGetComponentPercent(fueled) * TUNING.HEATROCK_NUMUSES
     if OPT_SHOW_MAX then return formatDecimal(current, 0) .. "/" .. TUNING.HEATROCK_NUMUSES end
     return current
 end
 
-local function formatArmor(armor, showtotal)
+local function describeArmor(armor, showtotal)
     local condition = armor.condition
     -- Patch for percent
     if condition == armor.maxcondition then 
@@ -158,14 +158,14 @@ local function formatArmor(armor, showtotal)
     return current
 end
 
-local function formatTemperature(temperature, decimals)
+local function describeTemperature(temperature, decimals)
     if OPT_USE_FAHRENHEIT then
         return formatDecimal(temperature * 1.0 + 32, decimals) .. DEGREES_F
     end
     return formatDecimal(temperature, decimals) .. DEGREES_C
 end
 
-local function formatSpoilTime(perishable, modifier)
+local function describeSpoilTime(perishable, modifier)
     local totalperishtime = perishable.perishtime / modifier
     local remainingperishtime = perishable.perishremainingtime / modifier 
     -- Backwards compatible check; if remaining time is still max and we have a percentage, use percentage
@@ -249,15 +249,15 @@ localSetPercent = function(itemtile, percent)
     local components = item.components
 
     if components.finiteuses ~= nil and OPT_REPLACE_USES_PERCENTAGE then
-        itemtile.percent:SetString(formatUses(components.finiteuses, false))
+        itemtile.percent:SetString(describeUses(components.finiteuses, false))
     elseif components.armor ~= nil and components.armor.condition ~= nil and
         OPT_REPLACE_ARMOR_PERCENTAGE then
-        itemtile.percent:SetString(formatArmor(components.armor, false))
+        itemtile.percent:SetString(describeArmor(components.armor, false))
     elseif components.fueled ~= nil and OPT_REPLACE_USES_PERCENTAGE then
         if item.prefab == "heatrock" then
-            itemtile.percent:SetString(formatHeatrock(components.fueled))
+            itemtile.percent:SetString(describeHeatrock(components.fueled))
         else
-            itemtile.percent:SetString(formatFuel(components.fueled, false))
+            itemtile.percent:SetString(describeFuel(components.fueled, false))
         end
     end
 end
@@ -319,24 +319,24 @@ function ItemTile:GetDescriptionString()
         result:AppendLine("DMG: " .. formatDecimal(damage, 1))
     end
     if components.finiteuses ~= nil and OPT_ENABLE_USES then
-        result:AppendLine("USE: " .. formatUses(components.finiteuses, true))
+        result:AppendLine("USE: " .. describeUses(components.finiteuses, true))
     end
     if components.temperature ~= nil and components.temperature.current ~= nil and
         isserver and OPT_ENABLE_TEMPERATURE then
         result:AppendLine("TEMP: " ..
-                              formatTemperature(components.temperature.current,
+                              describeTemperature(components.temperature.current,
                                                 1))
     end
     if components.fueled ~= nil and OPT_ENABLE_USES then
         if item.prefab == "heatrock" then
-            result:AppendLine("USE: " .. formatHeatrock(components.fueled))
+            result:AppendLine("USE: " .. describeHeatrock(components.fueled))
         else
-            result:AppendLine("USE: " .. formatFuel(components.fueled, true))
+            result:AppendLine("USE: " .. describeFuel(components.fueled, true))
         end
     end
     if components.armor ~= nil and OPT_ENABLE_ARMOR then
         if components.armor.condition ~= nil then
-            result:AppendLine("HP: " .. formatArmor(components.armor, true))
+            result:AppendLine("HP: " .. describeArmor(components.armor, true))
         end
         if components.armor.tags ~= nil then
             for k, v in pairs(components.armor.tags) do
@@ -421,7 +421,7 @@ function ItemTile:GetDescriptionString()
 
         if modifier ~= 0 then
             result:AppendLine("Spoil: " ..
-                                  formatSpoilTime(components.perishable,
+                                  describeSpoilTime(components.perishable,
                                                   modifier))
         end
     end
